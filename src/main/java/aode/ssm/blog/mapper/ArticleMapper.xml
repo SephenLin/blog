@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.ArticleMapper" >
+    <resultMap id="result_user_Article" type="article">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="title" property="title" jdbcType="VARCHAR"></result>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="traffics" property="traffics" jdbcType="INTEGER"></result>
+        <result column="introduce" property="introduce" jdbcType="VARCHAR"></result>
+        <result column="audit" property="audit" jdbcType="VARCHAR"></result>
+        <result column="article_type" property="articleType" jdbcType="VARCHAR"></result>
+        <result column="start_time" property="startTime" jdbcType="DATE"></result>
+        <result column="end_time" property="endTime" jdbcType="DATE"></result>
+        <result column="is_comment" property="isComment" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <resultMap id="result_visitor_Article" type="article">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="title" property="title" jdbcType="VARCHAR"></result>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="traffics" property="traffics" jdbcType="INTEGER"></result>
+        <result column="introduce" property="introduce" jdbcType="VARCHAR"></result>
+        <result column="audit" property="audit" jdbcType="VARCHAR"></result>
+        <result column="article_type" property="articleType" jdbcType="VARCHAR"></result>
+        <result column="start_time" property="startTime" jdbcType="DATE"></result>
+        <result column="end_time" property="endTime" jdbcType="DATE"></result>
+        <result column="is_comment" property="isComment" jdbcType="VARCHAR"></result>
+
+        <association property="user" javaType="aode.ssm.blog.po.User">
+            <id column="user_id1" property="id"></id>
+            <result column="account" property="account"></result>
+            <result column="head_url" property="headUrl"></result>
+            <result column="head_name" property="headName"></result>
+        </association>
+
+        <collection property="types" ofType="aode.ssm.blog.po.Type">
+            <id column="type_id" property="id"></id>
+            <result column="label" property="label"></result>
+            <result column="article_number" property="articleNumber"></result>
+        </collection>
+
+        <collection property="images" ofType="aode.ssm.blog.po.Image">
+            <id column="image_id" property="id"></id>
+            <result column="image_name" property="name"></result>
+            <result column="url" property="url"></result>
+        </collection>
+
+    </resultMap>
+
+    <insert id="add_article" parameterType="aode.ssm.blog.po.Article">
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO article(title,content,time,traffics,introduce,audit,user_id,start_time,end_time,is_comment,article_type)
+        VALUES (#{title},#{content},#{time},#{traffics},#{introduce},#{audit},#{user.id},#{startTime},#{endTime},#{isComment},#{articleType})
+    </insert>
+
+    <select id="selectAllArticleByUserId" resultMap="result_user_Article" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT article.* FROM article,user
+        <where>
+                AND user.id = #{user_id} AND user.id = article.user_id
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                AND article.title like "%"#{pageBean.searchText}"%"
+            </if>
+        </where>
+        ORDER BY article.time ASC
+    </select>
+
+    <select id="selectArticleById" resultMap="result_user_Article">
+        SELECT * FROM article
+        WHERE id = #{id}
+    </select>
+    
+    <select id="randSelectArticleByArticleType" parameterType="aode.ssm.blog.po.Article" resultType="article">
+        SELECT * FROM article
+        <where>
+            <if test="article.articleType != null">
+                    AND article_type = #{article.articleType}
+            </if>
+            AND id >=(SELECT floor( RAND() * ((SELECT MAX(id) FROM article)-(SELECT MIN(id) FROM article))
+            + (SELECT MIN(id) FROM article)))
+        </where>
+        ORDER BY id LIMIT #{number};
+    </select>
+
+    <select id="randSelectArticleByTraffics" resultType="article">
+        SELECT * FROM article
+        <where>
+            traffics >=(SELECT floor( RAND() * ((SELECT MAX(traffics) FROM article)-(SELECT MIN(traffics) FROM article))
+            + (SELECT MIN(traffics) FROM article)))
+        </where>
+        ORDER BY traffics LIMIT #{number};
+    </select>
+
+    <select id="lookArticle" resultMap="result_visitor_Article">
+        SELECT article.*,type.id type_id,type.label,type.article_number,
+        user.id user_id1,user.account,user.head_url,user.head_name,
+        image.name image_name,image.url,image.id image_id
+        FROM user,type,article,image,article_type
+        WHERE user.id = article.user_id AND article_type.article_id = article.id
+        AND type.id = article_type.type_id AND article.id = image.article_image_id
+        AND article.id = #{id}
+    </select>
+
+    <select id="selectAllNumber" resultType="java.lang.Integer" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT COUNT(*) FROM article
+        where user_id = #{id}
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                AND article.title like "%"#{pageBean.searchText}"%"
+            </if>
+    </select>
+
+    <delete id="delectArticlesById" parameterType="java.util.List">
+        DELETE FROM article
+        WHERE id IN
+        <foreach collection="list" item="article" open="(" separator="," close=")">
+            #{article.id}
+        </foreach>
+    </delete>
+
+    <delete id="delectArticleByid">
+        DELETE FROM article WHERE article.id = #{article_id}
+    </delete>
+    
+    <update id="updateArticleAuditById" parameterType="article">
+        UPDATE article SET audit = #{audit} WHERE id = #{id}
+    </update>
+
+
+    <!--游客操作文章系列-->
+    <select id="selectAllNumberByArticleType" resultType="java.lang.Integer" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT COUNT(*) FROM article
+        <where>
+            AND article.article_type = #{articleType}
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                AND article.title like "%"#{pageBean.searchText}"%"
+            </if>
+        </where>
+    </select>
+
+    <!--游客查询所有符合类型的文章-->
+    <select id="selectAllArticleByArticleType" resultMap="result_visitor_Article" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT article.*,type.id type_id,type.label,type.article_number,
+        user.id user_id1,user.account,user.head_url,user.head_name,
+        image.name image_name,image.url,image.id image_id
+        FROM user,type,article,image,article_type
+        WHERE user.id = article.user_id AND article_type.article_id = article.id
+        AND type.id = article_type.type_id AND article.id = image.article_image_id
+        AND article.article_type = #{articleType}
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                AND article.title like "%"#{pageBean.searchText}"%"
+            </if>
+        ORDER BY article.time ASC
+    </select>
+
+    <!--游客查询所有符合类型的文章-->
+    <select id="selectAllArticleByArticleTraffics" resultMap="result_visitor_Article" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT article.*,type.id type_id,type.label,type.article_number,
+        user.id user_id1,user.account,user.head_url,user.head_name,
+        image.name image_name,image.url,image.id image_id
+        FROM user,type,article,image,article_type
+        WHERE user.id = article.user_id AND article_type.article_id = article.id
+        AND type.id = article_type.type_id AND article.id = image.article_image_id
+        AND article.article_type = #{articleType}
+        ORDER BY article.traffics DESC limit 0,5
+    </select>
+
+    <update id="updateTraffics">
+        UPDATE article SET traffics = #{article.traffics}
+        WHERE id = #{article.id}
+    </update>
+
+</mapper>

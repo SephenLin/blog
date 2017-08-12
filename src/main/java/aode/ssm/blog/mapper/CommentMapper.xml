@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.CommentMapper" >
+
+    <resultMap id="resultComment" type="aode.ssm.blog.po.CommentCustom">
+        <id column="comment_id" property="id" jdbcType="INTEGER"></id>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+
+        <association property="article" javaType="aode.ssm.blog.po.Article">
+            <id column="article_id" property="id" jdbcType="INTEGER"></id>
+            <result column="article_title" property="title" jdbcType="VARCHAR"></result>
+        </association>
+
+        <association property="fromUser" javaType="aode.ssm.blog.po.User">
+            <id column="user_id" property="id" jdbcType="INTEGER"></id>
+            <result column="user_name" property="name" jdbcType="VARCHAR"></result>
+            <result column="head_url" property="headUrl" jdbcType="VARCHAR"></result>
+            <result column="head_name" property="headName" jdbcType="VARCHAR"></result>
+            <result column="user_email" property="email" jdbcType="VARCHAR"></result>
+        </association>
+
+    </resultMap>
+
+    <!--游客操作系列-->
+    <select id="selectNumberByArticleId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM comment WHERE comment.topic_aid = #{article_id}
+    </select>
+
+    <select id="selectAllCommentByArticleId" resultMap="resultComment">
+        SELECT user.name user_name,user.head_url,user.head_name,user.id user_id,
+        article.id article_id,article.title article_title,
+        comment.id comment_id,comment.content,comment.time
+        FROM user,article,comment
+        WHERE user.id = article.user_id AND article.id = comment.topic_aid
+        AND article.id = #{article_id}
+    </select>
+
+    <insert id="insertComment" parameterType="commentCustom">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="AFTER">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+        INSERT INTO comment(topic_aid,from_uid,content,time) VALUES (#{topicAid},#{fromUid},#{content},#{time})
+    </insert>
+
+    <!--游客操作系列end-->
+
+    <!--公用部分-->
+    <delete id="delectComment">
+        DELETE FROM comment WHERE id = #{article_id}
+    </delete>
+
+    <!--用户操作系列-->
+    <select id="userSelectAllCommentNumber" resultType="java.lang.Integer" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT COUNT(*) FROM comment LEFT JOIN article ON comment.topic_aid = article.id
+        LEFT JOIN user ON article.user_id = user.id
+        WHERE user.id = #{user_id}
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+            AND (article.title LIKE "%"#{pageBean.searchText}"%" OR article.content LIKE "%"#{pageBean.searchText}"%")
+        </if>
+    </select>
+
+
+    <delete id="delectCommentsById" parameterType="java.util.List">
+        DELETE FROM comment
+        WHERE id IN
+        <foreach collection="list" item="comment" open="(" separator="," close=")">
+            #{comment.id}
+        </foreach>
+    </delete>
+
+    <!--分页搜索-->
+    <select id="selectAllCommentByUserIdAndPage" resultMap="resultComment" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT user.name user_name,user.head_url,user.head_name,user.id user_id,user.email user_email,
+        article.id article_id,article.title article_title,
+        comment.id comment_id,comment.content,comment.time
+        FROM user,article,comment
+        WHERE user.id = article.user_id AND article.id = comment.topic_aid
+        AND user.id = ${user_id}
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+            AND (article.title LIKE "%"#{pageBean.searchText}"%" OR article.content LIKE "%"#{pageBean.searchText}"%")
+        </if>
+        ORDER BY article.time desc
+    </select>
+
+
+</mapper>

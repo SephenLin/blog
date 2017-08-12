@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.AdminMapper" >
+    <resultMap id="resultAdmin" type="admin">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="password" property="password" jdbcType="VARCHAR"></result>
+        <result column="account" property="account" jdbcType="VARCHAR"></result>
+        <result column="head_url" property="headUrl" jdbcType="VARCHAR"></result>
+        <result column="head_name" property="headName" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <resultMap id="resultUser" type="user">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="password" property="password" jdbcType="VARCHAR"></result>
+        <result column="account" property="account" jdbcType="VARCHAR"></result>
+        <result column="head_url" property="headUrl" jdbcType="VARCHAR"></result>
+        <result column="head_name" property="headName" jdbcType="VARCHAR"></result>
+        <result column="phone" property="phone" jdbcType="VARCHAR"></result>
+        <result column="email" property="email" jdbcType="VARCHAR"></result>
+        <result column="traffics" property="traffics" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="level" property="level" jdbcType="INTEGER"></result>
+    </resultMap>
+
+    <resultMap id="result_user_Article" type="article">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="title" property="title" jdbcType="VARCHAR"></result>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="traffics" property="traffics" jdbcType="INTEGER"></result>
+        <result column="introduce" property="introduce" jdbcType="VARCHAR"></result>
+        <result column="audit" property="audit" jdbcType="VARCHAR"></result>
+        <result column="article_type" property="articleType" jdbcType="VARCHAR"></result>
+        <result column="start_time" property="startTime" jdbcType="DATE"></result>
+        <result column="end_time" property="endTime" jdbcType="DATE"></result>
+        <result column="is_comment" property="isComment" jdbcType="VARCHAR"></result>
+    </resultMap>
+
+    <resultMap id="result_visitor_Article" type="article">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="title" property="title" jdbcType="VARCHAR"></result>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="traffics" property="traffics" jdbcType="INTEGER"></result>
+        <result column="introduce" property="introduce" jdbcType="VARCHAR"></result>
+        <result column="audit" property="audit" jdbcType="VARCHAR"></result>
+        <result column="article_type" property="articleType" jdbcType="VARCHAR"></result>
+        <result column="start_time" property="startTime" jdbcType="DATE"></result>
+        <result column="end_time" property="endTime" jdbcType="DATE"></result>
+        <result column="is_comment" property="isComment" jdbcType="VARCHAR"></result>
+
+        <association property="user" javaType="aode.ssm.blog.po.User">
+            <id column="user_id1" property="id"></id>
+            <result column="account" property="account"></result>
+            <result column="head_url" property="headUrl"></result>
+            <result column="head_name" property="headName"></result>
+        </association>
+
+        <collection property="types" ofType="aode.ssm.blog.po.Type">
+            <id column="type_id" property="id"></id>
+            <result column="label" property="label"></result>
+            <result column="article_number" property="articleNumber"></result>
+        </collection>
+
+        <collection property="images" ofType="aode.ssm.blog.po.Image">
+            <id column="image_id" property="id"></id>
+            <result column="image_name" property="name"></result>
+            <result column="url" property="url"></result>
+        </collection>
+
+    </resultMap>
+
+
+    <!--文章操作系列-->
+    <select id="selectAllArticle" resultMap="result_user_Article">
+        SELECT article.* FROM article,user
+        <where>
+            AND user.id = article.user_id
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                  AND (article.title like "%"#{pageBean.searchText}"%" OR article.article_type LIKE "%"#{pageBean.searchText}"%")
+            </if>
+        </where>
+        ORDER BY user.name ASC
+    </select>
+
+    <select id="selectAllUserNumber" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM user
+        <where>
+            <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                user.name like "%"#{pageBean.searchText}"%" OR user.account LIKE "%"#{pageBean.searchText}"%"
+                OR user.level like "%"#{pageBean.searchText}"%"
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllCountNumber" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM article
+        <where>
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+                article.title like "%"#{pageBean.searchText}"%" OR article.article_type LIKE "%"#{pageBean.searchText}"%"
+        </if>
+        </where>
+    </select>
+
+    <select id="lookArticle" resultMap="result_visitor_Article">
+        SELECT article.*,type.id type_id,type.label,type.article_number,
+        user.id user_id1,user.account,user.head_url,user.head_name,
+        image.name image_name,image.url,image.id image_id
+        FROM user,type,article,image,article_type
+        WHERE user.id = article.user_id AND article_type.article_id = article.id
+        AND type.id = article_type.type_id AND article.id = image.article_image_id
+        AND article.id = #{article_id}
+    </select>
+
+    <delete id="delectArticlesById" parameterType="java.util.List">
+        DELETE FROM article
+        WHERE id IN
+        <foreach collection="list" item="article" open="(" separator="," close=")">
+            #{article.id}
+        </foreach>
+    </delete>
+
+    <update id="updateArticleAuditById" parameterType="article">
+        UPDATE article SET audit = #{audit} WHERE id = #{id}
+    </update>
+    <!--文章操作系列end-->
+
+    <!--用户操作系列-->
+    <select id="selectAllUser" resultType="user">
+        SELECT * FROM user
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+            <where>
+                user.name like "%"#{pageBean.searchText}"%" OR user.phone LIKE "%"#{pageBean.searchText}"%"
+                OR user.account LIKE "%"#{pageBean.searchText}"%" OR user.email LIKE "%"#{pageBean.searchText}"%"
+            </where>
+        </if>
+    </select>
+
+    <select id="selectUserByUserId" resultMap="resultUser">
+        SELECT * FROM user
+        WHERE id = #{id}
+    </select>
+
+    <delete id="delectUsersById" parameterType="java.util.List">
+        DELETE FROM user
+        WHERE id IN
+        <foreach collection="list" item="user" open="(" separator="," close=")">
+            #{user.id}
+        </foreach>
+    </delete>
+
+    <update id="updateUserPassword">
+        UPDATE user SET password = #{user.password}
+        WHERE id = #{user.id}
+    </update>
+
+    <!--禁止用户登录-->
+    <insert id="insertUserAudit">
+        INSERT INTO user_audit(user_account,user_audit_id) VALUES (#{user.account},#{user.id})
+    </insert>
+
+    <!--允许用户登录-->
+    <delete id="deleteUserAudit">
+        DELETE FROM user_audit
+        WHERE user_audit_id = #{userId}
+    </delete>
+
+    <!--管理员操作系列-->
+    <select id="loginAdmin" resultMap="resultAdmin">
+        SELECT * FROM admin
+        WHERE admin.account = #{admin.account} AND admin.password = #{admin.password}
+    </select>
+
+    <update id="updateAdmin">
+        UPDATE admin SET admin.name = #{admin.name},admin.account = #{admin.account},admin.password = #{admin.password},
+        admin.head_url = #{admin.headUrl},admin.head_name = #{admin.headName}
+        WHERE admin.id = #{admin.id}
+    </update>
+
+    <select id="selectAdmin" resultMap="resultAdmin">
+        SELECT * FROM admin
+        WHERE admin.id = #{admin.id}
+    </select>
+
+</mapper>

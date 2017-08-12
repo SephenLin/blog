@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.UserMapper" >
+
+    <resultMap id="resultUser" type="user">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="account" property="account" jdbcType="VARCHAR"></result>
+        <result column="password" property="password" jdbcType="VARCHAR"></result>
+        <result column="phone" property="phone" jdbcType="VARCHAR"></result>
+        <result column="email" property="email" jdbcType="VARCHAR"></result>
+        <result column="head_url" property="headUrl" jdbcType="VARCHAR"></result>
+        <result column="head_name" property="headName" jdbcType="VARCHAR"></result>
+        <result column="traffics" property="traffics" jdbcType="INTEGER"></result>
+        <result column="time" property="time" jdbcType="DATE"></result>
+        <result column="introduction" property="introduction" jdbcType="VARCHAR"></result>
+        <result column="level" property="level" jdbcType="INTEGER"></result>
+    </resultMap>
+
+    <sql id="type_user_and">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="name != null">
+            AND name = #{name}
+        </if>
+        <if test="account != null">
+            AND account = #{account}
+        </if>
+        <if test="password != null">
+            AND password = #{password}
+        </if>
+        <if test="phone != null">
+            AND phone = #{phone}
+        </if>
+        <if test="email != null">
+            AND email = #{email}
+        </if>
+        <if test="headUrl != null">
+            AND head_url = #{headUrl}
+        </if>
+        <if test="traffics != null">
+            AND traffics = #{traffics}
+        </if>
+        <if test="time != null">
+            AND time = #{time}
+        </if>
+        <if test="introduction != null">
+            AND introduction = #{introduction}
+        </if>
+        <if test="level != null">
+            AND level = #{level}
+        </if>
+    </sql>
+
+
+    <insert id="insertUserByUser" parameterType="user">
+        INSERT INTO user(name,account,password,phone,email,head_url,head_name,traffics,time,introduction,level)
+        VALUES (#{name},#{account},#{password},#{phone},#{email},#{headUrl},#{headName},#{traffics},#{time},#{introduction},#{level})
+    </insert>
+
+    <select id="selectUserByUser" parameterType="user" resultType="user">
+        SELECT * FROM user
+        <where>
+            <include refid="type_user_and"></include>
+        </where>
+    </select>
+    
+    <update id="updateUser" parameterType="user">
+        UPDATE user SET name = #{name}, account = #{account}, password = #{password}, phone = #{phone}, email = #{email},
+        head_url = #{headUrl}, head_name = #{headName}, traffics = #{traffics}, time = #{time}, introduction = #{introduction}, level = #{level}
+        WHERE id = #{id}
+    </update>
+    
+    <select id="selectUserAudit" parameterType="user" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM user_audit
+        WHERE user_account = #{account} AND user_audit_id = #{id}
+    </select>
+
+</mapper>

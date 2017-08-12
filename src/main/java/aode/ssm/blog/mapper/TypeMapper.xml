@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.TypeMapper" >
+
+    <resultMap id="resultTypes" type="type">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="label" property="label" jdbcType="VARCHAR"/>
+        <result column="article_number" property="articleNumber" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <sql id="all_select">
+        <where>
+            <if test="{lable != null}">
+                AND lable = #{lable}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectLableByLabel" resultType="type" resultMap="resultTypes">
+        SELECT * FROM type WHERE label = #{label}
+    </select>
+
+    <insert id="add_article_type">
+        INSERT INTO article_type(article_id,type_id) VALUES (#{article_id},#{type_id})
+    </insert>
+
+    <select id="selectAllByArticleId" resultType="type">
+        SELECT type.* FROM type,article_type
+        WHERE article_type.article_id = #{article_id} AND article_type.type_id = type.id
+    </select>
+
+    <insert id="add_type" parameterType="type">
+        <selectKey keyProperty="id" order="AFTER" resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO type(label,article_number) VALUES (#{label},#{articleNumber})
+    </insert>
+
+</mapper>

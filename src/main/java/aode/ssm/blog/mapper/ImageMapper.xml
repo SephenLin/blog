@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="aode.ssm.blog.mapper.ImageMapper" >
+    
+    <resultMap id="article_image" type="aode.ssm.blog.po.ImageCustom">
+        <id column="id" property="id" jdbcType="INTEGER"></id>
+        <result column="url" property="url" jdbcType="VARCHAR"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <result column="audit" property="audit" jdbcType="VARCHAR"></result>
+
+        <association property="article" javaType="aode.ssm.blog.po.Article">
+            <id column="article_id" property="id" jdbcType="INTEGER"></id>
+            <result column="introduce" property="introduce" jdbcType="CLOB"></result>
+            <result column="title" property="title" jdbcType="VARCHAR"></result>
+            <result column="article_audit" property="audit" jdbcType="VARCHAR"></result>
+            <result column="article_type" property="articleType" jdbcType="VARCHAR"></result>
+        </association>
+    </resultMap>
+
+    <select id="selectByArticleIdEqualsNull" parameterType="image" resultType="image">
+        SELECT * FROM image WHERE article_image_id IS NULL
+    </select>
+
+    <select id="selectAllByUserId" resultMap="article_image" parameterType="aode.ssm.blog.util.PageBean">
+        SELECT article.title,article.introduce,article.article_type,article.id article_id,article.audit article_audit,
+        image.id,image.url,image.name,image.audit
+        FROM article,image,user
+        WHERE user.id = #{user_id} AND article.user_id = user.id AND image.article_image_id = article.id
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+            AND article.title like "%"#{pageBean.searchText}"%"
+        </if>
+        ORDER BY article.time ASC
+    </select>
+
+    <select id="selectAllByArticleId" resultType="image">
+        SELECT * FROM image WHERE article_image_id = #{article_id}
+    </select>
+
+    <select id="selectImageById" resultMap="article_image">
+        SELECT article.title,article.introduce,article.id article_id,article.audit article_audit,
+        image.id,image.url,image.name
+        FROM article,image,user
+        WHERE image.id = #{id,jdbcType=INTEGER} AND image.article_image_id = article.id AND article.user_id = user.id
+    </select>
+
+    <select id="selectNumberByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM image i LEFT JOIN article a ON i.article_image_id = a.id
+        WHERE a.user_id = #{user_id}
+        <if test="pageBean.searchText != null and pageBean.searchText != ''">
+            AND a.title like "%"#{pageBean.searchText}"%"
+        </if>
+    </select>
+
+    <update id="updateImageById" parameterType="imageCustom">
+        UPDATE image,article
+        SET image.name = #{name},image.url = #{url},article.introduce = #{introduce}
+        WHERE image.article_image_id = article.id AND image.id = #{id}
+    </update>
+
+    <update id="updateByArticle" parameterType="java.util.List">
+        <foreach collection="list" item="image" open="" close="" separator=";">
+            UPDATE image SET article_image_id = #{image.article.id} WHERE id = #{image.id}
+        </foreach>
+    </update>
+
+    <!--<update id="updateImageAuditById" parameterType="image">-->
+        <!--UPDATE image SET audit = #{audit} WHERE id = #{id}-->
+    <!--</update>-->
+
+    <delete id="deleteImagesById" parameterType="java.util.List">
+        DELETE FROM image
+        WHERE id IN
+            <foreach collection="list" item="image" open="(" separator="," close=")">
+                #{image.id}
+            </foreach>
+    </delete>
+
+</mapper>
