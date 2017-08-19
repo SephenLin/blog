@@ -80,7 +80,7 @@
         <div class="row cl">
             <label class="form-label col-xs-4 col-sm-2">文章作者：</label>
             <div class="formControls col-xs-8 col-sm-9">
-                <input type="text" class="input-text" value="0" placeholder="" id="author" name="author">
+                <input type="text" class="input-text" value="${loginUser.name}"  disabled="disabled" placeholder="" id="author" name="author">
             </div>
         </div>
         <div class="row cl">
@@ -200,7 +200,7 @@
     UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
     UE.Editor.prototype.getActionUrl = function(action) {
         if (action == 'uploadimage' || action == 'uploadscrawl' || action == 'uploadvideo') {
-            return 'http://localhost:8080/blog/image/image-add.action';
+            return '${pageContext.request.contextPath }/image/image-add.action';
         } else {
             return this._bkGetActionUrl.call(this, action);
         }

@@ -56,8 +56,10 @@
                         <a href="#" class="dropDown_A">用户功能 <i class="Hui-iconfont">&#xe6d5;</i></a>
                         <ul class="dropDown-menu menu radius box-shadow">
                             <li><a href="javascript:;" onClick="myselfinfo()">个人信息</a></li>
-                            <li><a href="${pageContext.request.contextPath }/user/loginOut.action">切换账户</a></li>
+                            <li><a href="${pageContext.request.contextPath }/admin/loginOut.action">切换账户</a></li>
                             <li><a href="${pageContext.request.contextPath }/index.jsp">返回博客首页</a></li>
+                            <li><a onclick="exportExcelForUser()">导出用户信息</a></li>
+                            <li><a href="${pageContext.request.contextPath }/admin/download-user-excel.action?filename=testExcel.xls">下载用户信息</a></li>
                             <li><a href="#">退出</a></li>
                         </ul>
                     </li>
@@ -190,6 +192,18 @@
         layer_show(title,url,w,h);
     }
     })
+
+    function exportExcelForUser() {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            scriptCharset: 'utf-8',
+            url: "${pageContext.request.contextPath }/admin/user_export_excel.action",
+            success: function(data) {
+                alert(data.excelUrl);
+            }
+        });
+    }
 
     /*个人信息*/
     function myselfinfo(){

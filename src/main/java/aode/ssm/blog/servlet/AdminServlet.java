@@ -5,19 +5,19 @@ import aode.ssm.blog.mapper.ArticleMapper;
 import aode.ssm.blog.mapper.TypeMapper;
 import aode.ssm.blog.po.*;
 import aode.ssm.blog.util.ArticleTypeUtil;
+import aode.ssm.blog.util.ExcelExport;
 import aode.ssm.blog.util.PageBean;
 import com.github.pagehelper.PageHelper;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by 林进华 on 2017/8/6.
@@ -218,7 +218,7 @@ public class AdminServlet extends BaseServlet {
                 htmls = htmls + "<tr id=\"temp\"  class=\"text-c\">" +
                         "<td><input type=\"checkbox\" id= \"subChk\" value=\"" + user.getId() + "\" name=\"subChk\"></td>" +
                         "<td>" + i + "</td>" +
-                        "<td><img class=\"avatar size-XL l\" src=\"" + user.getHeadUrl() + user.getName() + "\"></td>" +
+                        "<td><img class=\"avatar size-XL l\" src=\"http://localhost:8080/blog/" + user.getHeadUrl() + user.getHeadName() + "\"></td>" +
                         "<td>" +user.getName() + "</td>" +
                         "<td><u style=\"cursor:pointer\" class=\"text-primary\" onclick=\"member_show('查看" + user.getName() + "的资料','" +user.getId()+ "','360','400')\">" + user.getAccount() + "</u></td>" +
                         "<td>" + user.getPassword() + "</td>" +
@@ -272,6 +272,42 @@ public class AdminServlet extends BaseServlet {
             result.put("mesage","未知错误");
             return result;
         }
+    }
+
+    public Map<String,Object> user_export_excel(HttpServletRequest request) throws Exception {
+        // 1.创造文件夹和文件---start
+
+        //1.1 创造存储的文件夹   按时间----start
+
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
+        String separator = File.separator;
+        //真实路径
+        SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");// 将从数据库取出来的时间格式化成想要的格式
+        String realPath = request.getServletContext().getRealPath("resources" + separator + "userExcel" + separator + dateFormater.format(new Date()));
+        File file1 = new File(realPath);
+        if (!file1.exists()){
+            file1.mkdirs();
+        }
+        //1.1 创造存储的文件夹   按时间----end
+
+        // 1.2 创造文件 ----start
+
+        File file2 = new File(realPath + separator + "testExcel.xls") ; // 文件夹
+				if(!file2.exists()) {
+					file2.createNewFile() ;
+				}else {
+					file2.delete();
+					file2.createNewFile();
+				}
+        // 1.2 创造文件 ----end
+
+        // 1.创造文件夹和文件---end
+
+        List<User> users = adminMapper.selectAllUser(new PageBean());
+        ExcelExport excelExport = new ExcelExport();
+        excelExport.user_export_excel(users,file2);
+        return null;
     }
 
     public User lookUserById(int id) {

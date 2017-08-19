@@ -6,9 +6,14 @@ import aode.ssm.blog.po.User;
 import aode.ssm.blog.servlet.AdminServlet;
 import aode.ssm.blog.servlet.ArticleServlet;
 import aode.ssm.blog.util.PageBean;
+import org.apache.commons.io.FileUtils;
 import org.apache.ibatis.annotations.Param;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,10 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -95,6 +102,13 @@ public class AdminController {
         session.setAttribute("loginAdmin",admin);
         return objectMapper.writeValueAsString(adminServlet.updateAdmin(admin));
     }
+
+    @RequestMapping(value="/loginOut")
+    public String loginOut(HttpSession session) throws Exception {
+        //通过session.invalidata()方法来注销当前的session
+        session.invalidate();
+        return "/admin/login";
+    }
     // 修改管理员信息end
 
     // 管理员操作文章系列
@@ -134,7 +148,7 @@ public class AdminController {
     }
 
     @ResponseBody
-    @RequestMapping("/articles-delete")
+    @RequestMapping(value = "/articles-delete", method=RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String deleteArticles(HttpServletRequest request,HttpSession session,PageBean pageBean) throws Exception {
         String id = request.getParameter("ids");
         String[] temps = id.split(",");
@@ -159,6 +173,39 @@ public class AdminController {
                 pageBean.getEndPageIndex() - pageBean.getStartPageIndex() > 3 ? 4 : pageBean.getEndPageIndex());
         System.out.println("user-listUI  -------->------>" + pageBean.toString());
         return "admin/user-list";
+    }
+
+    // 导入excel表
+    @ResponseBody
+    @RequestMapping(value = "/user_export_excel", method=RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    public String user_export_excel(HttpSession session,Model model,HttpServletRequest request) throws Exception {
+        adminServlet.user_export_excel(request);
+        Map<String,Object> map = new HashMap<String, Object>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        map.put("excelUrl","Excel的存储位置为aodeProject\target\\blog\resources");
+        return objectMapper.writeValueAsString(map);
+    }
+
+    // 下载excel表
+    @RequestMapping(value="/download-user-excel")
+    public ResponseEntity<byte[]> download(HttpServletRequest request,
+                                           @RequestParam("filename") String filename,Model model)throws Exception {
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
+        String separator = File.separator;
+        //下载文件路径
+        SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");// 将从数据库取出来的时间格式化成想要的格式
+        String path = request.getServletContext().getRealPath("resources" + separator + "userExcel" + separator + dateFormater.format(new Date()));
+        File file = new File(path + separator + filename);
+        HttpHeaders headers = new HttpHeaders();
+        //下载显示的文件名，解决中文名称乱码问题
+        String downloadFielName = new String(filename.getBytes("UTF-8"),"iso-8859-1");
+        //通知浏览器以attachment（下载方式）打开图片
+        headers.setContentDispositionFormData("attachment", downloadFielName);
+        //application/octet-stream ： 二进制流数据（最常见的文件下载）。
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
+                headers, HttpStatus.CREATED);
     }
 
     @ResponseBody

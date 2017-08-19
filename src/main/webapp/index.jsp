@@ -46,7 +46,7 @@
                 <div class="collapse navbar-toggleable-sm" id="tmNavbar">
                     <ul class="nav navbar-nav">
                         <li class="nav-item active">
-                            <a href="${pageContext.request.contextPath }/index.jsp" class="nav-link">主页</a>
+                            <a href="${pageContext.request.contextPath }/visitor/blog-init.action" class="nav-link">主页</a>
                         </li>
                         <li class="nav-item">
                             <a href="${pageContext.request.contextPath }/single.jsp" class="nav-link">博客</a>
@@ -87,7 +87,7 @@
             <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3 col-xl-3">
 
                 <div class="tm-content-box divcss">
-                    <img src="${pageContext.request.contextPath }/resources/UI/img/tm-img-310x180-1.jpg" alt="Image" class="tm-margin-b-20 img-fluid">
+                    <img src="${pageContext.request.contextPath }/${topArticle.images[0].url}${topArticle.images[0].name}" height="180px" width="310px" alt="Image" class="tm-margin-b-20 img-fluid">
                     <h4 class="tm-margin-b-20 tm-gold-text">${topArticle.title}</h4>
                     <p class="tm-margin-b-20">${topArticle.introduce}</p>
                     <a href="${pageContext.request.contextPath }/visitor/blog-look.action?id=${topArticle.id}" target="_blank" class="tm-btn text-uppercase">Detail</a>
@@ -104,7 +104,7 @@
 
                     <h3 class="tm-gold-text tm-title">${leftArticle.title}</h3>
                     <p class="tm-margin-b-30">${leftArticle.introduce}</p>
-                    ${leftArticle.content}
+                    <img src="${pageContext.request.contextPath }/${leftArticle.images[0].url}${leftArticle.images[0].name}" class="tm-margin-b-40 img-fluid">
                     <a href="${pageContext.request.contextPath }/visitor/blog-look.action?id=${leftArticle.id}" target="_blank" class="tm-btn text-uppercase">Read More</a>
 
                 </div>
@@ -157,7 +157,7 @@
                                         <div class="media tm-related-post">
                                             <div class="media-left media-middle">
                                                 <a href="#">
-                                                    <img class="media-object" src="${pageContext.request.contextPath }/resources/UI/img/tm-img-240x120-1.jpg" alt="Generic placeholder image">
+                                                    <img class="media-object" src="${pageContext.request.contextPath }/${buttonArticle.images[0].url}${buttonArticle.images[0].name}" height="120px" width="240px" alt="Generic placeholder image">
                                                 </a>
                                             </div>
                                             <div class="media-body" class="divcss">
@@ -279,6 +279,12 @@
     <!--字体的css样式-->
 <style>
 .divcss {line-height: 35px}
+
+.divClass {
+    border: 1px solid red;
+    width: 200px;
+    height: 200px;
+}
 
 </style>
 

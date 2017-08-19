@@ -70,7 +70,6 @@
             </thead>
             <tbody>
             <tr class="text-c"><td id="pagetool" colspan="12" align="center"></td></tr>
-            <tr class="text-c"><td><input type="checkbox" value="215" name="subChk"></td><td>1</td><td class="text-l"><u style="cursor:pointer" class="text-primary" onClick="article_edit('查看','article-zhang.jsp','215')" title="查看">大大</u></td><td>大</td><td>全部类型</td><td></td><td>2017-07-28</td><td>2017-07-28</td><td>2017-07-28</td><td>120</td><td class="td-status"><span class="label label-success radius">审核中</span></td><td class="f-14 td-manage"><input id="articleId" type="hidden" name="articleId" value="215"><a style="text-decoration:none" onClick="article_start(this,215)" href="javascript:;" title="通过审核"><i class="Hui-iconfont">&#xe6de;</i></a><a style="text-decoration:none" class="ml-5" onClick="article_del(this,'215')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a></td></tr>
             </tbody>
             ${pageBean.getEndPageIndex() - pageBean.getStartPageIndex() > 2 ? 3 : pageBean.getEndPageIndex() - pageBean.getStartPageIndex()}
 ${initPageSize}
@@ -135,7 +134,6 @@ ${initPageSize}
 
         // 调用laypage函数
         function getLaypage(tempPageBean) {
-            alert("1");
             var pageBean = $.extend({},tempPageBean);
             alert("laypage 当前页数 " + pageBean.nowPage);
             /*laypage分页插件*/
@@ -148,13 +146,12 @@ ${initPageSize}
                 curr : pageBean.nowPage,
                 skin: '#1E9FFF', //颜色
                 jump: function(obj){
-                    alert("2");
                     $.ajax({
                         type: "POST",
                         dataType: 'json',
                         scriptCharset: 'utf-8',
                         url: "${pageContext.request.contextPath }/admin/article-list.action",
-                        data: {"nowPage":obj.curr ,"size":5 ,"searchText":searchText.val() ,"selectType":selectType.val()},
+                        data: {"nowPage":obj.curr ,"size":5 ,"searchText":searchText.val()},
                         success: function(data) {
                             $("#number").text(data.pageBean.recordCount);
                             obj.pages = data.pageBean.pageCount;
@@ -236,15 +233,11 @@ ${initPageSize}
                 dataType: 'json',
                 scriptCharset: 'utf-8',
                 url: "${pageContext.request.contextPath }/admin/articles-delete.action",
-                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage},
+                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage,"recordCount":$("#number").text()},
                 success: function(data) {
                     $("#number").text(data.pageBean.recordCount);
                     if(data.result) {
-                        alert("1");
-                        $("table #temp").remove();
-                        var htmls = data.htmls;
-                        alert(htmls);
-                        $(htmls).insertAfter($("#test"));
+                        getLaypage(data.pageBean);
                         layer.msg('已删除!',{icon:1,time:1000});
                     }else {
                         alert("2");
@@ -318,7 +311,7 @@ ${initPageSize}
             $.ajax({
                 type: "get",
                 dataType: "json",
-                url: '${pageContext.request.contextPath }/admin/article-audit.action?id=' + id + '&audit=0',
+                url: '${pageContext.request.contextPath }/admin/article-audit.action?id=' + id + '&audit=1',
                 success: function (data) {
                     if (data.result) {
                         var name1 = '<a style="text-decoration:none" onClick="article_stop(this,';

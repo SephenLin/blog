@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -104,7 +105,7 @@ public class UserController {
     }
 
     @ResponseBody
-    @RequestMapping("/articles-delete")
+    @RequestMapping(value = "/articles-delete", method=RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String deleteArticles(HttpServletRequest request,HttpSession session,PageBean pageBean) throws Exception {
         String id = request.getParameter("ids");
         String[] temps = id.split(",");
@@ -112,9 +113,9 @@ public class UserController {
         for(int i = 0; i < temps.length; i++) {
             ids[i] = Integer.parseInt(temps[i]);
         }
-        User user = (User) session.getAttribute("userLogin");
+        User user = (User) session.getAttribute("loginUser");
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(articleServlet.delectArticlesById(ids, 1,pageBean));
+        return objectMapper.writeValueAsString(articleServlet.delectArticlesById(ids, user.getId(),pageBean));
     }
 
 
@@ -176,8 +177,11 @@ public class UserController {
         user.setTime(temp.getTime());
         user.setId(temp.getId());
         ObjectMapper objectMapper = new ObjectMapper();
+        String separator = File.separator;
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
         SimpleDateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");// 将从数据库取出来的时间格式化成想要的格式
-        String path = "resources\\headImage\\" + user.getName() + "\\" + dateFormater.format(new Date());
+        String path = "resources" + separator + "headImage" + separator + user.getName() + separator + dateFormater.format(new Date());
         Map<String,Object> map = userServlet.add_head(file,request, response,path,new User());
         User tempUser = (User) map.get("user");
         user.setHeadName(tempUser.getHeadName());

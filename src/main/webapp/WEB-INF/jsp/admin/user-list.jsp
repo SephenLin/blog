@@ -63,7 +63,7 @@
 	</table>
 	</div>
 </div>
-----------------------------------------${initPageSize}
+----------------------------------------${initPageSize}${Excel}
 <!--_footer 作为公共模版分离出去-->
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/admin/lib/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="${pageContext.request.contextPath }/resources/admin/lib/layer/2.4/layer.js"></script>
@@ -108,7 +108,6 @@
                 success: function(data) {
                     $("#number").text(data.pageBean.recordCount);
                     obj.pages = data.pageBean.pageCount;
-                    alert(data.pageBean.pageCount);
                     $("table #temp").remove();
                     var curr = obj.curr;
                     var htmls = data.htmls;
@@ -116,8 +115,6 @@
                     tempNowPage = obj.curr;
                     tempSize = data.pageBean.size;
                     tempPageCount = obj.pages;
-                    alert(htmls);
-                    alert(tempNowPage);
                     $(htmls).insertAfter($("#test"));
                 }
             });
@@ -150,18 +147,13 @@
                         alert("第0步");
                         $("#number").text(data.pageBean.recordCount);
                         obj.pages = data.pageBean.pageCount;
-                        alert("第一步");
                         $("table #temp").remove();
                         var curr = obj.curr;
                         var htmls = data.htmls;
-                        alert("第2步");
                         // 将当前页码的信息公共化，方便其他方法调用
                         tempNowPage = obj.curr;
                         tempSize = data.pageBean.size;
                         tempPageCount = obj.pages;
-                        alert("第3步");
-                        alert(htmls);
-                        alert(tempNowPage);
                         $(htmls).insertAfter($("#test"));
                     }
                 });
@@ -181,7 +173,6 @@
             data: {"nowPage":1 ,"size":5 ,"searchText":$("#searchText").val() ,
                 "selectType":$("#selectType").val()},
             success: function(data) {
-                alert("4");
                 getLaypage(data.pageBean);
                 alert("当前页数" + tempNowPage);
             }
@@ -213,15 +204,9 @@
                 data: {"ids":checkedList.toString(),"size":tempSize,"nowPage":tempNowPage,"recordCount":$("#number").text()},
                 success: function(data) {
                     if(data.result) {
-                        alert("总记录数" + $("#number").val());
-                        alert("当前页啊" + tempNowPage);
                         getLaypage(data.pageBean);
-                        alert("当前页" + tempNowPage);
-                        alert("总页数" + data.pageBean.pageCount);
                         layer.msg('已删除!',{icon:1,time:1000});
                     }else {
-                        alert("2");
-                        alert(data.result);
                         if(data.errorType == '1') {
                             layer.msg(data.mesage,{icon:2,time:1000});
                         }
@@ -239,19 +224,13 @@
                 dataType: 'json',
                 scriptCharset: 'utf-8',
                 url: "${pageContext.request.contextPath }/admin/users-delete.action",
-                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage},
+                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage,"recordCount":$("#number").text()},
                 success: function(data) {
                     $("#number").text(data.pageBean.recordCount);
                     if(data.result) {
-                        alert("1");
-                        $("table #temp").remove();
-                        var htmls = data.htmls;
-                        alert(htmls);
-                        $(htmls).insertAfter($("#test"));
+                        getLaypage(data.pageBean);
                         layer.msg('已删除!',{icon:1,time:1000});
                     }else {
-                        alert("2");
-                        alert(data.result);
                         if(data.errorType == '1') {
                             layer.msg(data.mesage,{icon:2,time:1000});
                         }

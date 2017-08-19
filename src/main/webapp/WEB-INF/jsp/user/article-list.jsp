@@ -148,13 +148,15 @@ ${initPageSize}
                 curr : pageBean.nowPage,
                 skin: '#1E9FFF', //颜色
                 jump: function(obj){
+                    alert("laypage jump进来了 ");
                     $.ajax({
                         type: "POST",
                         dataType: 'json',
                         scriptCharset: 'utf-8',
                         url: "${pageContext.request.contextPath }/user/article-list.action",
-                        data: {"nowPage":obj.curr ,"size":5 ,"searchText":searchText.val() ,"selectType":selectType.val()},
+                        data: {"nowPage":obj.curr ,"size":5 ,"searchText":searchText.val()},
                         success: function(data) {
+                            alert("ajax进来了 ");
                             $("#number").text(data.pageBean.recordCount);
                             obj.pages = data.pageBean.pageCount;
                             $("table #temp").remove();
@@ -252,13 +254,11 @@ ${initPageSize}
                 dataType: 'json',
                 scriptCharset: 'utf-8',
                 url: "${pageContext.request.contextPath }/user/articles-delete.action",
-                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage},
+                data: {"ids":id,"size":tempSize,"nowPage":tempNowPage,"recordCount":$("#number").text()},
                 success: function(data) {
                     $("#number").text(data.pageBean.recordCount);
                     if(data.result) {
-                        $("table #temp").remove();
-                        var htmls = data.htmls;
-                        $(htmls).insertAfter($("#test"));
+                        getLaypage(data.pageBean);
                         layer.msg('已删除!',{icon:1,time:1000});
                     }else {
                         alert(data.result);
@@ -331,7 +331,7 @@ ${initPageSize}
             $.ajax({
                 type: "get",
                 dataType: "json",
-                url: '${pageContext.request.contextPath }/user/article-audit.action?id=' + id + "&audit=0",
+                url: '${pageContext.request.contextPath }/user/article-audit.action?id=' + id + "&audit=1",
                 success: function (data) {
                     if (data.result) {
                         var name1 = '<a style="text-decoration:none" onClick="article_stop(this,';

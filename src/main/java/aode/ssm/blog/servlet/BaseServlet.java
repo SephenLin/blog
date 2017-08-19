@@ -43,12 +43,15 @@ public class BaseServlet {
             //真实路径
             roolPath = request.getSession().getServletContext().getRealPath("/");
             File file1 = new File(realPath);
+            String separator = File.separator;
+            // windows下正斜杠/和反斜杠都是可以的
+            // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
             if (!file1.exists()){
                 file1.mkdirs();
             }
             System.out.println("  ****************************  + realpath =  " + realPath + "roolpath = " + roolPath);
             image.setName(uuidname);
-            image.setUrl(realPath.substring(realPath.lastIndexOf("blog\\") + 5, realPath.length()) + "\\");
+            image.setUrl(realPath.substring(realPath.lastIndexOf("blog" + separator) + 5, realPath.length()) + separator);
             //得到文件的输入流
             InputStream in = new BufferedInputStream(file.getInputStream());
             //获得文件的输出流
@@ -61,7 +64,7 @@ public class BaseServlet {
             int flag = imageMapper.insert(image);
             if(flag!=0){
                 map.put("state", "SUCCESS");// UEDITOR的规则:不为SUCCESS则显示state的内容
-                map.put("url",realPath.substring(realPath.lastIndexOf("blog\\") + 4, realPath.length()) + "\\" + uuidname);         //能访问到你现在图片的路径
+                map.put("url",realPath.substring(realPath.lastIndexOf("blog" + separator) + 4, realPath.length()) + separator + uuidname);         //能访问到你现在图片的路径
                 map.put("title","");
                 map.put("original",uuidname);
             }
@@ -94,6 +97,9 @@ public class BaseServlet {
             realPath = request.getServletContext().getRealPath(path);
             //真实路径
             roolPath = request.getSession().getServletContext().getRealPath("/");
+            String separator = File.separator;
+            // windows下正斜杠/和反斜杠都是可以的
+            // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
             File file1 = new File(realPath);
             if (!file1.exists()){
                 file1.mkdirs();
@@ -102,11 +108,11 @@ public class BaseServlet {
             if(object instanceof Admin) {
                 admin = new Admin();
                 admin.setHeadName(uuidname);
-                admin.setHeadUrl(realPath.substring(realPath.lastIndexOf("blog\\") + 5, realPath.length()) + "\\");
+                admin.setHeadUrl(realPath.substring(realPath.lastIndexOf("blog" + separator) + 5, realPath.length()) + separator);
             }else {
                 user = new User();
                 user.setHeadName(uuidname);
-                user.setHeadUrl(realPath.substring(realPath.lastIndexOf("blog\\") + 5, realPath.length()) + "\\");
+                user.setHeadUrl(realPath.substring(realPath.lastIndexOf("blog" + separator) + 5, realPath.length()) + separator);
             }
             //得到文件的输入流
             InputStream in = new BufferedInputStream(file.getInputStream());
@@ -134,6 +140,9 @@ public class BaseServlet {
         String roolPath = ""; //图片保存的工程,如：D:\aodeProject\target\blog\
         String realPath = ""; //图片保存的真实路径,如：D:\aodeProject\target\blog\resources\testImage\test
         ObjectMapper objectMapper = new ObjectMapper();
+        String separator = File.separator;
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
         try {
             //图片保存的工程
             realPath = request.getServletContext().getRealPath(path);
@@ -151,7 +160,7 @@ public class BaseServlet {
             }
             System.out.println("  ****************************  + realpath =  " + realPath + "roolpath = " + roolPath);
             imageCustom.setName(uuidname);
-            imageCustom.setUrl(realPath.substring(realPath.lastIndexOf("blog\\") + 5, realPath.length()) + "\\");
+            imageCustom.setUrl(realPath.substring(realPath.lastIndexOf("blog" + separator) + 5, realPath.length()) + separator);
             //得到文件的输入流
             InputStream in = new BufferedInputStream(file.getInputStream());
             //获得文件的输出流

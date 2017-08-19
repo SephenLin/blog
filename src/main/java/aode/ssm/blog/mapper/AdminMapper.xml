@@ -128,7 +128,7 @@
     <!--文章操作系列end-->
 
     <!--用户操作系列-->
-    <select id="selectAllUser" resultType="user">
+    <select id="selectAllUser" resultMap="resultUser">
         SELECT * FROM user
         <if test="pageBean.searchText != null and pageBean.searchText != ''">
             <where>

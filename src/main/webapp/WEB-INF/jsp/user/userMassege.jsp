@@ -72,7 +72,7 @@
         <div class="row cl">
             <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>账号：</label>
             <div class="formControls col-xs-3 col-sm-4">
-                <input type="text" class="input-text" value="${lookUser.account}" placeholder="输入账号" id="account" name="account">
+                <input type="text" class="input-text" disabled="disabled" value="${lookUser.account}" placeholder="输入账号" id="account" name="account">
             </div>
         </div>
         <div class="row cl">
@@ -239,7 +239,6 @@
                             max: 18,
                             message: '账号长度必须在18位之内'
                         }
-                    }
                 },
                 password: {
                     validators: {
@@ -319,12 +318,22 @@
 //手动触发验证
         bootstrapValidator.validate();
         if(bootstrapValidator.isValid()){
-            alert("进来了");
-            if($("#validates").val() != "") {
-                document.getElementById("creatAccount").submit();
-            }else {
-                alert("进来了");
+            if($("#name").val() == null || $("#name").val() == "") {
+                layer.msg("名字不能为空！",{icon:2,time:1000});
+            }else if($("#account").val() == null || $("#account").val() == "") {
+                layer.msg("账号不能为空！",{icon:2,time:1000});
+            }else if($("#password").val() == null || $("#password").val() == "") {
+                layer.msg("密码不能为空！",{icon:2,time:1000});
+            }else if($("#passwordTwo").val() == null || $("#passwordTwo").val() == "") {
+                layer.msg("密码不能为空！",{icon:2,time:1000});
+            }else if($("#phone").val() == null || $("#phone").val() == "") {
+                layer.msg("手机不能为空！",{icon:2,time:1000});
+            }else if($("#validates").val() == null || $("#validates").val() == "") {
                 layer.msg("验证码不能为空！",{icon:2,time:1000});
+            }else if($("#email").val() == null || $("#email").val() == "") {
+                layer.msg("邮箱不能为空！",{icon:2,time:1000});
+            }else {
+                document.getElementById("creatAccount").submit();
             }
         }
     });

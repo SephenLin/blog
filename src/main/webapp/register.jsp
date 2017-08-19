@@ -235,6 +235,13 @@
                             regexp: /^[a-zA-Z0-9_]+$/,
                             message: '账号只能包含大写、小写、数字和下划线'
                         },
+                        threshold : 1,
+                        remote: {//ajax验证。server result:{"valid",true or false} 向服务发送当前input name值，获得一个json数据。例表示正确：{"valid",true}
+                            url: '${pageContext.request.contextPath }/userLoginAndRegisterController/register-checkAccount.action',//验证地址
+                            message: '用户已存在',//提示消息
+                            delay :  2000,//每输入一个字符，就发ajax请求，服务器压力还是太大，设置2秒发送一次ajax（默认输入一个字符，提交一次，服务器压力太大）
+                            type: 'POST'//请求方式
+                        },
                         stringLength: {
                             max: 18,
                             message: '账号长度必须在18位之内'
@@ -319,12 +326,22 @@
 //手动触发验证
         bootstrapValidator.validate();
         if(bootstrapValidator.isValid()){
-            alert("进来了");
-            if($("#validates").val() != "") {
-                document.getElementById("creatAccount").submit();
-            }else {
-                alert("进来了");
+            if($("#name").val() == null || $("#name").val() == "") {
+                layer.msg("名字不能为空！",{icon:2,time:1000});
+            }else if($("#account").val() == null || $("#account").val() == "") {
+                layer.msg("账号不能为空！",{icon:2,time:1000});
+            }else if($("#password").val() == null || $("#password").val() == "") {
+                layer.msg("密码不能为空！",{icon:2,time:1000});
+            }else if($("#passwordTwo").val() == null || $("#passwordTwo").val() == "") {
+                layer.msg("密码不能为空！",{icon:2,time:1000});
+            }else if($("#phone").val() == null || $("#phone").val() == "") {
+                layer.msg("手机不能为空！",{icon:2,time:1000});
+            }else if($("#validates").val() == null || $("#validates").val() == "") {
                 layer.msg("验证码不能为空！",{icon:2,time:1000});
+            }else if($("#email").val() == null || $("#email").val() == "") {
+                layer.msg("邮箱不能为空！",{icon:2,time:1000});
+            }else {
+                document.getElementById("creatAccount").submit();
             }
         }
     });

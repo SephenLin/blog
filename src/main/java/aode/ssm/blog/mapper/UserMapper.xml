@@ -65,6 +65,10 @@
             <include refid="type_user_and"></include>
         </where>
     </select>
+
+    <select id="checkAccount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM user WHERE user.account = ${account}
+    </select>
     
     <update id="updateUser" parameterType="user">
         UPDATE user SET name = #{name}, account = #{account}, password = #{password}, phone = #{phone}, email = #{email},

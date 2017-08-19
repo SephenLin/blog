@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,10 @@ public class UserImageController {
     public String testImage(@RequestParam(value = "upfile", required = false) MultipartFile file,
                                         HttpServletRequest request, HttpServletResponse response) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String,Object> map = imageServlet.add_Image(file,request,response,"resources\\testImage\\test");
+        String separator = File.separator;
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
+        Map<String,Object> map = imageServlet.add_Image(file,request,response,"resources" + separator + "testImage" + separator + "test");
         return objectMapper.writeValueAsString(map);
     }
 
@@ -47,7 +51,10 @@ public class UserImageController {
     public String addImage(@RequestParam(value = "upfile", required = false) MultipartFile file,
                            HttpServletRequest request, HttpServletResponse response) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
-        Map<String,Object> map = imageServlet.add_Image(file,request,response,"resources\\testImage\\test");
+        String separator = File.separator;
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
+        Map<String,Object> map = imageServlet.add_Image(file,request,response,"resources" + separator + "testImage" + separator + "test");
         return objectMapper.writeValueAsString(map);
     }
 
@@ -64,7 +71,10 @@ public class UserImageController {
                               @RequestParam(value = "id", required = false) int id,
                               HttpServletRequest request, HttpServletResponse response) throws Exception {
         ImageCustom imageCustom = imageServlet.selectImageById(id);
-        imageServlet.pictureUpdate(imageCustom,file,request,response,"resources\\testImage\\test");
+        String separator = File.separator;
+        // windows下正斜杠/和反斜杠都是可以的
+        // linux下只认正斜杠，为了保证跨平台性，不建议使用反斜杠（在java程序中是转义字符，用\来表示反斜
+        imageServlet.pictureUpdate(imageCustom,file,request,response,"resources" + separator + "testImage" + separator + "test");
     }
 
     // 删除功能
@@ -77,12 +87,11 @@ public class UserImageController {
         String[] temps = id.split(",");
         int[] ids = new int[temps.length];
         for(int i = 0; i < temps.length; i++) {
-            System.out.println("**************** int id =  " + Integer.parseInt(temps[i]));
             ids[i] = Integer.parseInt(temps[i]);
         }
-        System.out.println("**************** icontroller 结束  ");
         ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(imageServlet.deleteImagesById(ids,1,pageBean));
+        User user = (User) session.getAttribute("loginUser");
+        return objectMapper.writeValueAsString(imageServlet.deleteImagesById(ids,user.getId(),pageBean));
     }
 
     // 列表功能

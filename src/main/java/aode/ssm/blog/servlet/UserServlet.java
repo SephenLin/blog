@@ -3,7 +3,6 @@ package aode.ssm.blog.servlet;
 import aode.ssm.blog.mapper.UserMapper;
 import aode.ssm.blog.po.User;
 import aode.ssm.blog.util.*;
-import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ public class UserServlet extends BaseServlet {
         Map<String, java.lang.Object> map = new HashMap<String,  java.lang.Object>();
         PhoneUtil2 phoneUtil2 = new PhoneUtil2();
         // 获取6位随机数
-        String n = null;
+        String n = "";
         Random r;
         for (int i = 0; i < 6; i++) {
             r = new Random();
@@ -41,11 +40,24 @@ public class UserServlet extends BaseServlet {
             return map;
         }
     }
+
     //注册
     public int register(User user) {
         user.setTime(new Date());
         int i = userMapper.insertUserByUser(user);
         return i;
+    }
+
+    // 检查账号是否存在
+    public Map<String,Object> checkAccount(String account) {
+        Map<String,Object> map = new HashMap<String,  java.lang.Object>();
+        int i = userMapper.checkAccount(account);
+        if(i > 0) {
+            map.put("valid",false);
+        }else {
+            map.put("valid",true);
+        }
+        return map;
     }
 
     // 找回密码，通过邮箱

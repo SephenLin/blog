@@ -88,6 +88,7 @@ public class VisitorArticleServlet extends BaseServlet {
     public Map<String,Object> initBlog() throws IOException {
         Map<String,Object> map = new HashMap<String, Object>();
         List<Article> topArticles = new ArrayList<Article>(); // 顶部的文章
+        List<Article> leftArticles = new ArrayList<Article>(); // 顶部的文章
         Article leftArticle = new Article(); // 左边的文章
         List<Article> rightArticles = new ArrayList<Article>(); // 右边的文章
         List<Article> buttonArticles = new ArrayList<Article>(); // 底部的文章
@@ -111,7 +112,10 @@ public class VisitorArticleServlet extends BaseServlet {
         }
         map.put("topArticles",topArticles);
         articleType.setArticleType("1");
-        leftArticle = articleMapper.randSelectArticleByArticleType(1,articleType).get(0);
+        leftArticles = articleMapper.randSelectArticleByArticleType(1,articleType);
+        if(leftArticles.size() > 0) {
+            leftArticle = leftArticles.get(0);
+        }
         map.put("leftArticle",leftArticle);
         articleType.setArticleType(null);
         rightArticles = articleMapper.randSelectArticleByTraffics(5);

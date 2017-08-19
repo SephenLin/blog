@@ -1,6 +1,7 @@
 package aode.ssm.blog.mapper;
 
 import aode.ssm.blog.po.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -18,4 +19,6 @@ public interface UserMapper extends MySqlMapper<User>,Mapper<User> {
     public List<User> selectUserByUser(User user);
     public int updateUser(User user);
     public int selectUserAudit(User user);
+    // 检查账号是否存在
+    public int checkAccount(@Param("account")String account);
 }

@@ -73,16 +73,22 @@
         WHERE id = #{id}
     </select>
     
-    <select id="randSelectArticleByArticleType" parameterType="aode.ssm.blog.po.Article" resultType="article">
-        SELECT * FROM article
+    <select id="randSelectArticleByArticleType" parameterType="aode.ssm.blog.po.Article" resultMap="result_visitor_Article">
+        SELECT article.*,type.id type_id,type.label,type.article_number,
+        user.id user_id1,user.account,user.head_url,user.head_name,
+        image.name image_name,image.url,image.id image_id
+        FROM user,type,article,image,article_type
         <where>
+            AND user.id = article.user_id AND article_type.article_id = article.id
+            AND type.id = article_type.type_id AND article.id = image.article_image_id
             <if test="article.articleType != null">
                     AND article_type = #{article.articleType}
             </if>
-            AND id >=(SELECT floor( RAND() * ((SELECT MAX(id) FROM article)-(SELECT MIN(id) FROM article))
-            + (SELECT MIN(id) FROM article)))
+            AND article.id >=(SELECT floor( RAND() * ((SELECT MAX(article.id) FROM article)-(SELECT MIN(article.id) FROM article))
+            + (SELECT MIN(article.id) FROM article)))
+            AND article.audit = 1
         </where>
-        ORDER BY id LIMIT #{number};
+        ORDER BY article.id LIMIT #{number};
     </select>
 
     <select id="randSelectArticleByTraffics" resultType="article">
@@ -90,6 +96,7 @@
         <where>
             traffics >=(SELECT floor( RAND() * ((SELECT MAX(traffics) FROM article)-(SELECT MIN(traffics) FROM article))
             + (SELECT MIN(traffics) FROM article)))
+            AND article.audit = 1
         </where>
         ORDER BY traffics LIMIT #{number};
     </select>
@@ -137,6 +144,7 @@
             <if test="pageBean.searchText != null and pageBean.searchText != ''">
                 AND article.title like "%"#{pageBean.searchText}"%"
             </if>
+            AND article.audit = 1
         </where>
     </select>
 
@@ -152,6 +160,7 @@
             <if test="pageBean.searchText != null and pageBean.searchText != ''">
                 AND article.title like "%"#{pageBean.searchText}"%"
             </if>
+        AND article.audit = 1
         ORDER BY article.time ASC
     </select>
 
@@ -164,6 +173,7 @@
         WHERE user.id = article.user_id AND article_type.article_id = article.id
         AND type.id = article_type.type_id AND article.id = image.article_image_id
         AND article.article_type = #{articleType}
+        AND article.audit = 1
         ORDER BY article.traffics DESC limit 0,5
     </select>
 

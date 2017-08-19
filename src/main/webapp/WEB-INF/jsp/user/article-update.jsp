@@ -200,17 +200,17 @@ ${article.articleType}
                                 },6000);
                             }
                         });
-                    });
+                    });z
                 </script>
 <SCRIPT type=text/javascript>
     var editor = new UE.ui.Editor();
-    editor.render("myEditor");
+    editor.render("myEditor");z
     //1.2.4以后可以使用一下代码实例化编辑器
     //UE.getEditor('myEditor')
     UE.Editor.prototype._bkGetActionUrl = UE.Editor.prototype.getActionUrl;
     UE.Editor.prototype.getActionUrl = function(action) {
         if (action == 'uploadimage' || action == 'uploadscrawl' || action == 'uploadvideo') {
-            return 'http://localhost:8080/blog/image/image-add.action';
+            return '${pageContext.request.contextPath }/image/image-add.action';
         } else {
             return this._bkGetActionUrl.call(this, action);
         }
